@@ -1,17 +1,45 @@
+const User = require('../users/users-model')
+
 function logger(req, res, next) {
-  // DO YOUR MAGIC
+  console.log(`Method: ${req.method}, URL: ${req.url}. Date: ${new Date()}`)
+  next()
 }
 
-function validateUserId(req, res, next) {
-  // DO YOUR MAGIC
+async function validateUserId(req, res, next) {
+ const findUser = await User.getById(req.params.id)
+  try{
+    if(findUser){
+      req.user = findUser
+      next()
+    } else {
+      res.status(404).json({ message: "user not found" })
+    }
+  } catch(err){
+      next(err)
+  }
 }
 
 function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+  const { name } = req.body
+  if(name !== undefined){
+    next()
+  } else {
+    res.status(400).json({ message: "missing required name field"})
+  }
 }
 
 function validatePost(req, res, next) {
-  // DO YOUR MAGIC
+  if(req.body.text){
+    next()
+  } else {
+    res.status(400).json({ message: "missing required text field" })
+  }
 }
 
 // do not forget to expose these functions to other modules
+module.exports = {
+  logger, 
+  validateUserId,
+  validateUser,
+  validatePost
+}
